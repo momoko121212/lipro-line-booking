@@ -1,0 +1,20 @@
+{
+  "name": "leebo-line-booking",
+  "version": "1.0.0",
+  "description": "麗波永康國際診所 - LINE 官方帳號預約系統",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}
