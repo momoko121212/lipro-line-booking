@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>麗波永康國際診所 - 線上預約</title>
+<style>
+  :root{
+    --brand:#2f8f7f;
+    --brand-dark:#1f6b5e;
+    --bg:#f5f8f7;
+    --card:#ffffff;
+    --text:#26312e;
+    --muted:#7c8a86;
+    --border:#e1e8e6;
+    --slot-taken:#e9edec;
+    --danger:#d64545;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",Segoe UI,Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .header{
+    background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+    color:#fff;
+    padding:28px 20px 22px;
+    text-align:center;
+  }
+  .header h1{
+    margin:0 0 4px;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:0.5px;
+  }
+  .header p{
+    margin:0;
+    font-size:13px;
+    opacity:0.9;
+  }
+  .container{
+    max-width:520px;
+    margin:0 auto;
+    padding:16px 16px 60px;
+  }
+  .card{
+    background:var(--card);
+    border-radius:14px;
+    padding:18px 16px;
+    margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    border:1px solid var(--border);
+  }
+  .card h2{
+    font-size:15px;
+    margin:0 0 12px;
+    color:var(--brand-dark);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:6px;
+    margin-top:12px;
+  }
+  label:first-of-type{margin-top:0;}
+  input[type="text"], input[type="tel"], input[type="date"], textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    font-size:15px;
+    background:#fbfcfc;
+    color:var(--text);
+  }
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--brand);
+    background:#fff;
+  }
+  .slots-status{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .slot-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .slot-btn{
+    padding:10px 4px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    font-size:14px;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+    transition:all .12s ease;
+  }
+  .slot-btn:hover:not(:disabled){
+    border-color:var(--brand);
+  }
+  .slot-btn.selected{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#fff;
+    font-weight:600;
+  }
+  .slot-btn:disabled{
+    background:var(--slot-taken);
+    color:var(--muted);
+    text-decoration:line-through;
+    cursor:not-allowed;
+  }
+  .empty-msg{
+    font-size:13px;
+    color:var(--muted);
+    padding:8px 0;
+  }
+  .submit-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:var(--brand);
+    color:#fff;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .submit-btn:disabled{
+    background:#b7cdc8;
+    cursor:not-allowed;
+  }
+  .msg{
+    margin-top:10px;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:8px;
+    display:none;
+  }
+  .msg.show{display:block;}
+  .msg.success{background:#e5f4ee;color:var(--brand-dark);}
+  .msg.error{background:#fcebeb;color:var(--danger);}
+  .selected-summary{
+    font-size:13px;
+    color:var(--brand-dark);
+    background:#eef7f4;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-top:10px;
+    display:none;
+  }
+  .selected-summary.show{display:block;}
+  .footer-note{
+    text-align:center;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>麗波永康國際診所</h1>
+  <p>線上預約系統｜請選擇日期與時段</p>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <h2>預約人資訊</h2>
+    <label for="name">預約大名</label>
+    <input type="text" id="name" placeholder="請輸入姓名" />
+
+    <label for="phone">聯絡電話</label>
+    <input type="tel" id="phone" placeholder="例如 0912345678" />
+
+    <label for="note">備註（選填）</label>
+    <textarea id="note" rows="2" placeholder="想諮詢的項目、症狀等（選填）"></textarea>
+  </div>
+
+  <div class="card">
+    <h2>選擇日期</h2>
+    <input type="date" id="date" />
+    <div class="footer-note">診所看診時間：週一至週五 09:00–18:00（12:00–13:30 午休不開放）</div>
+  </div>
+
+  <div class="card">
+    <h2>選擇時段</h2>
+    <div class="slots-status" id="slotsStatus">請先選擇日期</div>
+    <div class="slot-grid" id="slotGrid"></div>
+    <div class="selected-summary" id="selectedSummary"></div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" disabled>送出預約</button>
+  <div class="msg" id="msgBox"></div>
+
+</div>
+
+<script>
+(function () {
+  const dateInput = document.getElementById('date');
+  const slotGrid = document.getElementById('slotGrid');
+  const slotsStatus = document.getElementById('slotsStatus');
+  const selectedSummary = document.getElementById('selectedSummary');
+  const submitBtn = document.getElementById('submitBtn');
+  const msgBox = document.getElementById('msgBox');
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('phone');
+  const noteInput = document.getElementById('note');
+
+  let selectedTime = null;
+  let lineUserId = null;
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  dateInput.min = todayStr;
+
+  function showMessage(text, type) {
+    msgBox.textContent = text;
+    msgBox.className = 'msg show ' + type;
+  }
+  function clearMessage() {
+    msgBox.className = 'msg';
+  }
+
+  function updateSubmitState() {
+    const ready =
+      nameInput.value.trim().length > 0 &&
+      phoneInput.value.trim().length >= 8 &&
+      dateInput.value &&
+      selectedTime;
+    submitBtn.disabled = !ready;
+  }
+
+  function renderSlots(data) {
+    slotGrid.innerHTML = '';
+    selectedTime = null;
+    selectedSummary.className = 'selected-summary';
+
+    if (!data.open) {
+      slotsStatus.textContent = '該日期診所未開放（僅平日看診），請重新選擇日期';
+      updateSubmitState();
+      return;
+    }
+
+    if (!data.slots || data.slots.length === 0) {
+      slotsStatus.innerHTML = '<div class="empty-msg">當日無可預約時段</div>';
+      updateSubmitState();
+      return;
+    }
+
+    const availableCount = data.slots.filter((s) => s.available).length;
+    slotsStatus.textContent =
+      availableCount > 0
+        ? `共 ${data.slots.length} 個時段，尚有 ${availableCount} 個可預約`
+        : '很抱歉，當日時段已全部額滿';
+
+    data.slots.forEach((slot) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'slot-btn';
+      btn.textContent = slot.time;
+      if (!slot.available) {
+        btn.disabled = true;
+        btn.title = '此時段已被預約';
+      } else {
+        btn.addEventListener('click', () => {
+          document
+            .querySelectorAll('.slot-btn.selected')
+            .forEach((b) => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedTime = slot.time;
+          selectedSummary.textContent = `已選擇：${dateInput.value} ${slot.time}`;
+          selectedSummary.classList.add('show');
+          updateSubmitState();
+        });
+      }
+      slotGrid.appendChild(btn);
+    });
+    updateSubmitState();
+  }
+
+  async function loadSlots() {
+    clearMessage();
+    if (!dateInput.value) return;
+    slotsStatus.textContent = '載入時段中...';
+    slotGrid.innerHTML = '';
+    try {
+      const res = await fetch(`/api/slots?date=${dateInput.value}`);
+      const data = await res.json();
+      if (!res.ok) {
+        showMessage(data.error || '載入時段失敗', 'error');
+        return;
+      }
+      renderSlots(data);
+    } catch (err) {
+      showMessage('無法連線到伺服器，請稍後再試', 'error');
+    }
+  }
+
+  dateInput.addEventListener('change', loadSlots);
+  nameInput.addEventListener('input', updateSubmitState);
+  phoneInput.addEventListener('input', updateSubmitState);
+
+  submitBtn.addEventListener('click', async () => {
+    clearMessage();
+    submitBtn.disabled = true;
+    submitBtn.textContent = '送出中...';
+    try {
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nameInput.value.trim(),
+          phone: phoneInput.value.trim(),
+          date: dateInput.value,
+          time: selectedTime,
+          note: noteInput.value.trim(),
+          lineUserId: lineUserId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMessage(data.error || '預約失敗，請稍後再試', 'error');
+        submitBtn.textContent = '送出預約';
+        if (res.status === 409) loadSlots();
+        updateSubmitState();
+        return;
+      }
+      showMessage(
+        `預約成功！${data.appointment.slot_date} ${data.appointment.slot_time}，我們將盡快與您確認。`,
+        'success'
+      );
+      submitBtn.textContent = '送出預約';
+      loadSlots();
+      nameInput.value = '';
+      phoneInput.value = '';
+      noteInput.value = '';
+      updateSubmitState();
+    } catch (err) {
+      showMessage('無法連線到伺服器，請稍後再試', 'error');
+      submitBtn.textContent = '送出預約';
+      updateSubmitState();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
