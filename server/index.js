@@ -35,6 +35,7 @@ function isValidTimeStr(s) {
 }
 
 function isValidPhone(s) {
+  // 台灣常見手機/市話格式的寬鬆檢查（09xxxxxxxx 或含括號、-、空白的市話）
   return typeof s === 'string' && /^[0-9()\-+\s]{8,15}$/.test(s.trim());
 }
 
@@ -123,6 +124,7 @@ app.post('/api/appointments', (req, res) => {
       .prepare('SELECT * FROM appointments WHERE id = ?')
       .get(info.lastInsertRowid);
 
+    // 預約成功後嘗試透過 LINE 推播確認訊息（若尚未設定 LINE 金鑰則會自動略過，不影響預約流程）
     line
       .pushMessage(
         lineUserId,
@@ -132,6 +134,7 @@ app.post('/api/appointments', (req, res) => {
 
     return res.status(201).json({ ok: true, appointment });
   } catch (err) {
+    // UNIQUE constraint 觸發 = 該時段已在極短時間內被別人搶先預約（race condition）
     if (String(err.message).includes('UNIQUE constraint failed')) {
       return res.status(409).json({ error: '很抱歉，這個時段剛剛已被其他人預約，請重新選擇時段' });
     }
@@ -140,7 +143,7 @@ app.post('/api/appointments', (req, res) => {
   }
 });
 
-// ---------- API：查詢單筆預約 ----------
+// ---------- API：查詢單筆預約（可用於 LIFF 內顯示「我的預約」，之後可依 lineUserId 篩選）----------
 
 app.get('/api/appointments', (req, res) => {
   const { lineUserId } = req.query;
@@ -155,9 +158,84 @@ app.get('/api/appointments', (req, res) => {
   res.json({ appointments: rows });
 });
 
+// ---------- API：建立「胸型重塑評估」諮詢表單留資（/gynecomastia 頁面用）----------
+// 這是留資讓專員回電的表單，不是選時段預約，所以不檢查時段衝突，
+// 只做基本必填欄位驗證。
+
+app.post('/api/consultations', (req, res) => {
+  const {
+    height,
+    weight,
+    exerciseHabit,
+    priorSurgery,
+    bodyType,
+    name,
+    phone,
+    preferredDate,
+    preferredTimeSlots,
+    note,
+  } = req.body || {};
+
+  if (!name || typeof name !== 'string' || name.trim().length === 0) {
+    return res.status(400).json({ error: '請填寫姓名或稱呼' });
+  }
+  if (!isValidPhone(phone)) {
+    return res.status(400).json({ error: '請填寫正確的聯絡電話' });
+  }
+  if (!exerciseHabit) {
+    return res.status(400).json({ error: '請選擇運動/重訓習慣' });
+  }
+  if (!priorSurgery) {
+    return res.status(400).json({ error: '請選擇是否曾做過手術' });
+  }
+  if (!bodyType) {
+    return res.status(400).json({ error: '請選擇您的體態型態' });
+  }
+  if (preferredDate && !isValidDateStr(preferredDate)) {
+    return res.status(400).json({ error: '回電日期格式不正確' });
+  }
+  if (
+    !preferredTimeSlots ||
+    !Array.isArray(preferredTimeSlots) ||
+    preferredTimeSlots.length === 0
+  ) {
+    return res.status(400).json({ error: '請至少選擇一個方便接聽電話的時段' });
+  }
+
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO consultations
+        (height, weight, exercise_habit, prior_surgery, body_type, name, phone, preferred_date, preferred_time_slots, note)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const info = stmt.run(
+      (height || '').trim() || null,
+      (weight || '').trim() || null,
+      exerciseHabit,
+      priorSurgery,
+      bodyType,
+      name.trim(),
+      phone.trim(),
+      preferredDate || null,
+      preferredTimeSlots.join(','),
+      (note || '').trim() || null
+    );
+
+    const consultation = db
+      .prepare('SELECT * FROM consultations WHERE id = ?')
+      .get(info.lastInsertRowid);
+
+    return res.status(201).json({ ok: true, consultation });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: '伺服器發生錯誤，請稍後再試' });
+  }
+});
+
 // ---------- 管理端保護：需要帳號密碼才能查看預約 ----------
 // 帳號密碼設定在 Render 的 Environment Variables（ADMIN_USER / ADMIN_PASSWORD），
 // 不會寫在程式碼裡，所以就算 GitHub repo 是公開的也不會外洩密碼。
+// 如果還沒設定這兩個環境變數，管理頁面會先保持開放（並在記錄裡提醒），方便demo階段測試。
 
 function requireAdminAuth(req, res, next) {
   const expectedUser = process.env.ADMIN_USER;
@@ -196,7 +274,7 @@ app.get('/api/admin/appointments', requireAdminAuth, (req, res) => {
   res.json({ appointments: rows });
 });
 
-// ---------- 管理端網頁：預約總覽 ----------
+// ---------- 管理端網頁：預約總覽（方便診所人員查看）----------
 
 app.get('/admin', requireAdminAuth, (_req, res) => {
   res.send(`<!doctype html>
@@ -208,6 +286,7 @@ app.get('/admin', requireAdminAuth, (_req, res) => {
 <style>
   body{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;background:#f5f8f7;margin:0;padding:20px;color:#26312e;}
   h1{font-size:18px;color:#1f6b5e;}
+  a.tolink{font-size:13px;color:#1f6b5e;}
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
   th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e1e8e6;font-size:14px;}
   th{background:#eef7f4;color:#1f6b5e;}
@@ -218,6 +297,7 @@ app.get('/admin', requireAdminAuth, (_req, res) => {
 </head>
 <body>
   <h1>麗波永康國際診所｜預約總覽</h1>
+  <a class="tolink" href="/admin/consultations">查看胸型重塑評估表單留資 &rarr;</a>
   <div class="refresh">每 30 秒自動更新一次</div>
   <div id="content">載入中...</div>
   <script>
@@ -247,10 +327,95 @@ app.get('/admin', requireAdminAuth, (_req, res) => {
 </html>`);
 });
 
-// ---------- LINE Webhook ----------
+// ---------- 管理端：查看所有胸型重塑評估表單留資 ----------
+
+app.get('/api/admin/consultations', requireAdminAuth, (req, res) => {
+  const rows = db
+    .prepare(`SELECT * FROM consultations ORDER BY created_at DESC`)
+    .all();
+  res.json({ consultations: rows });
+});
+
+// ---------- 管理端網頁：胸型重塑評估表單留資總覽 ----------
+
+app.get('/admin/consultations', requireAdminAuth, (_req, res) => {
+  res.send(`<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>評估表單留資總覽 - 麗波永康國際診所</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;background:#f5f8f7;margin:0;padding:20px;color:#26312e;}
+  h1{font-size:18px;color:#1f6b5e;}
+  a.back{font-size:13px;color:#1f6b5e;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-top:12px;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e1e8e6;font-size:13px;vertical-align:top;}
+  th{background:#eef7f4;color:#1f6b5e;}
+  tr:last-child td{border-bottom:none;}
+  .empty{color:#7c8a86;padding:20px;text-align:center;}
+  .refresh{font-size:12px;color:#7c8a86;margin:8px 0;}
+  .tablewrap{overflow-x:auto;}
+</style>
+</head>
+<body>
+  <a class="back" href="/admin">&larr; 回一般預約總覽</a>
+  <h1>麗波永康國際診所｜胸型重塑評估表單留資</h1>
+  <div class="refresh">每 30 秒自動更新一次</div>
+  <div id="content">載入中...</div>
+  <script>
+    const timeSlotLabel = {
+      A: '上午 10:00-12:00',
+      B: '中午 12:00-14:00',
+      C: '下午 14:00-18:00',
+      D: '晚上 18:00-20:00',
+      E: '皆可/其他',
+    };
+    async function load() {
+      try {
+        const res = await fetch('/api/admin/consultations');
+        const data = await res.json();
+        const rows = data.consultations || [];
+        if (rows.length === 0) {
+          document.getElementById('content').innerHTML = '<div class="empty">目前沒有任何留資</div>';
+          return;
+        }
+        let html = '<div class="tablewrap"><table><thead><tr>' +
+          '<th>建立時間</th><th>姓名</th><th>電話</th><th>身高/體重</th><th>運動習慣</th><th>曾手術</th><th>體態型態</th><th>方便回電日期</th><th>方便時段</th><th>備註</th>' +
+          '</tr></thead><tbody>';
+        rows.forEach(r => {
+          const slots = (r.preferred_time_slots || '').split(',').filter(Boolean)
+            .map(s => timeSlotLabel[s] || s).join('、');
+          html += '<tr>' +
+            '<td>' + r.created_at + '</td>' +
+            '<td>' + r.name + '</td>' +
+            '<td>' + r.phone + '</td>' +
+            '<td>' + (r.height || '-') + ' / ' + (r.weight || '-') + '</td>' +
+            '<td>' + (r.exercise_habit || '') + '</td>' +
+            '<td>' + (r.prior_surgery || '') + '</td>' +
+            '<td>' + (r.body_type || '') + '</td>' +
+            '<td>' + (r.preferred_date || '未指定') + '</td>' +
+            '<td>' + slots + '</td>' +
+            '<td>' + (r.note || '') + '</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table></div>';
+        document.getElementById('content').innerHTML = html;
+      } catch (err) {
+        document.getElementById('content').innerHTML = '<div class="empty">載入失敗，請重新整理</div>';
+      }
+    }
+    load();
+    setInterval(load, 30000);
+  </script>
+</body>
+</html>`);
+});
+
+// ---------- LINE Webhook（接收使用者傳來的訊息/事件，例如加好友、傳送文字）----------
 
 function verifyLineSignature(req) {
-  if (!line.CHANNEL_SECRET) return true;
+  if (!line.CHANNEL_SECRET) return true; // 尚未設定金鑰時，demo 階段先放行
   const signature = req.get('x-line-signature');
   if (!signature || !req.rawBody) return false;
   const hash = crypto
@@ -272,6 +437,7 @@ app.post('/webhook', (req, res) => {
     }
     if (event.type === 'message' && event.message && event.message.type === 'text') {
       console.log('[LINE Webhook] 收到訊息：', event.message.text);
+      // 之後可在這裡加入：如果使用者輸入「預約」，回覆一個 LIFF 預約連結
     }
   }
 
