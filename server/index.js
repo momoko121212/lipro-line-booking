@@ -35,7 +35,6 @@ function isValidTimeStr(s) {
 }
 
 function isValidPhone(s) {
-  // 台灣常見手機/市話格式的寬鬆檢查（09xxxxxxxx 或含括號、-、空白的市話）
   return typeof s === 'string' && /^[0-9()\-+\s]{8,15}$/.test(s.trim());
 }
 
@@ -124,7 +123,6 @@ app.post('/api/appointments', (req, res) => {
       .prepare('SELECT * FROM appointments WHERE id = ?')
       .get(info.lastInsertRowid);
 
-    // 預約成功後嘗試透過 LINE 推播確認訊息（若尚未設定 LINE 金鑰則會自動略過，不影響預約流程）
     line
       .pushMessage(
         lineUserId,
@@ -134,7 +132,6 @@ app.post('/api/appointments', (req, res) => {
 
     return res.status(201).json({ ok: true, appointment });
   } catch (err) {
-    // UNIQUE constraint 觸發 = 該時段已在極短時間內被別人搶先預約（race condition）
     if (String(err.message).includes('UNIQUE constraint failed')) {
       return res.status(409).json({ error: '很抱歉，這個時段剛剛已被其他人預約，請重新選擇時段' });
     }
@@ -143,7 +140,7 @@ app.post('/api/appointments', (req, res) => {
   }
 });
 
-// ---------- API：查詢單筆預約（可用於 LIFF 內顯示「我的預約」，之後可依 lineUserId 篩選）----------
+// ---------- API：查詢單筆預約 ----------
 
 app.get('/api/appointments', (req, res) => {
   const { lineUserId } = req.query;
@@ -158,9 +155,39 @@ app.get('/api/appointments', (req, res) => {
   res.json({ appointments: rows });
 });
 
-// ---------- 管理端：查看所有預約（demo 用，之後可加上帳號密碼驗證）----------
+// ---------- 管理端保護：需要帳號密碼才能查看預約 ----------
+// 帳號密碼設定在 Render 的 Environment Variables（ADMIN_USER / ADMIN_PASSWORD），
+// 不會寫在程式碼裡，所以就算 GitHub repo 是公開的也不會外洩密碼。
 
-app.get('/api/admin/appointments', (req, res) => {
+function requireAdminAuth(req, res, next) {
+  const expectedUser = process.env.ADMIN_USER;
+  const expectedPass = process.env.ADMIN_PASSWORD;
+
+  if (!expectedUser || !expectedPass) {
+    console.warn('[Admin] 尚未設定 ADMIN_USER / ADMIN_PASSWORD，管理頁面目前沒有密碼保護');
+    return next();
+  }
+
+  const authHeader = req.headers.authorization || '';
+  const [scheme, encoded] = authHeader.split(' ');
+
+  if (scheme === 'Basic' && encoded) {
+    const decoded = Buffer.from(encoded, 'base64').toString('utf8');
+    const sepIndex = decoded.indexOf(':');
+    const reqUser = decoded.slice(0, sepIndex);
+    const reqPass = decoded.slice(sepIndex + 1);
+    if (reqUser === expectedUser && reqPass === expectedPass) {
+      return next();
+    }
+  }
+
+  res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
+  return res.status(401).send('需要登入才能查看此頁面');
+}
+
+// ---------- 管理端：查看所有預約 ----------
+
+app.get('/api/admin/appointments', requireAdminAuth, (req, res) => {
   const rows = db
     .prepare(
       `SELECT * FROM appointments WHERE status = 'confirmed' ORDER BY slot_date, slot_time`
@@ -169,9 +196,9 @@ app.get('/api/admin/appointments', (req, res) => {
   res.json({ appointments: rows });
 });
 
-// ---------- 管理端網頁：預約總覽（方便診所人員查看）----------
+// ---------- 管理端網頁：預約總覽 ----------
 
-app.get('/admin', (_req, res) => {
+app.get('/admin', requireAdminAuth, (_req, res) => {
   res.send(`<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -220,10 +247,10 @@ app.get('/admin', (_req, res) => {
 </html>`);
 });
 
-// ---------- LINE Webhook（接收使用者傳來的訊息/事件，例如加好友、傳送文字）----------
+// ---------- LINE Webhook ----------
 
 function verifyLineSignature(req) {
-  if (!line.CHANNEL_SECRET) return true; // 尚未設定金鑰時，demo 階段先放行
+  if (!line.CHANNEL_SECRET) return true;
   const signature = req.get('x-line-signature');
   if (!signature || !req.rawBody) return false;
   const hash = crypto
@@ -245,7 +272,6 @@ app.post('/webhook', (req, res) => {
     }
     if (event.type === 'message' && event.message && event.message.type === 'text') {
       console.log('[LINE Webhook] 收到訊息：', event.message.text);
-      // 之後可在這裡加入：如果使用者輸入「預約」，回覆一個 LIFF 預約連結
     }
   }
 
