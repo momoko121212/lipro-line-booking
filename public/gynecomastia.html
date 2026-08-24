@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>胸型重塑評估｜男性女乳症線上諮詢與費用預約 - 麗波永康國際診所</title>
+<style>
+  :root{
+    --brand:#2f8f7f;
+    --brand-dark:#1f6b5e;
+    --bg:#f5f8f7;
+    --card:#ffffff;
+    --text:#26312e;
+    --muted:#7c8a86;
+    --border:#e1e8e6;
+    --danger:#d64545;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",Segoe UI,Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+  }
+  .header{
+    background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+    color:#fff;
+    padding:26px 20px;
+    text-align:center;
+  }
+  .header h1{
+    margin:0 0 4px;
+    font-size:19px;
+    font-weight:700;
+  }
+  .header p{
+    margin:0;
+    font-size:13px;
+    opacity:0.9;
+  }
+  .container{
+    max-width:560px;
+    margin:0 auto;
+    padding:16px 16px 60px;
+  }
+  .progress{
+    display:flex;
+    gap:6px;
+    margin-bottom:16px;
+  }
+  .progress .dot{
+    flex:1;
+    height:4px;
+    border-radius:4px;
+    background:var(--border);
+  }
+  .progress .dot.active{background:var(--brand);}
+  .card{
+    background:var(--card);
+    border-radius:14px;
+    padding:20px 18px;
+    margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    border:1px solid var(--border);
+  }
+  .step{display:none;}
+  .step.visible{display:block;}
+  h2{font-size:16px;margin:0 0 10px;color:var(--brand-dark);}
+  h3{font-size:14px;margin:16px 0 8px;color:var(--brand-dark);}
+  p{font-size:14px;color:var(--text);margin:8px 0;}
+  .intro-list{margin:10px 0;padding-left:0;list-style:none;}
+  .intro-list li{font-size:14px;margin:8px 0;padding-left:26px;position:relative;}
+  .intro-list li::before{
+    content:"✓";
+    position:absolute;left:0;top:0;
+    color:var(--brand);font-weight:700;
+  }
+  .quote{
+    background:#eef7f4;
+    border-left:3px solid var(--brand);
+    border-radius:6px;
+    padding:12px 14px;
+    font-size:13px;
+    color:var(--brand-dark);
+    margin:14px 0;
+  }
+  .type-item{
+    font-size:13px;
+    margin:6px 0;
+    padding:10px 12px;
+    background:#fbfcfc;
+    border:1px solid var(--border);
+    border-radius:8px;
+  }
+  .type-item b{color:var(--brand-dark);}
+  .links a{
+    display:block;
+    font-size:13px;
+    color:var(--brand-dark);
+    text-decoration:none;
+    margin:6px 0;
+  }
+  .links a:hover{text-decoration:underline;}
+  .price-note{
+    background:#fff8ec;
+    border:1px solid #f0e0bd;
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:13px;
+    color:#7a5e1f;
+    margin:14px 0;
+  }
+  .privacy-note{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:12px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:6px;
+    margin-top:14px;
+  }
+  label:first-of-type{margin-top:0;}
+  label .req{color:var(--danger);}
+  input[type="text"], input[type="tel"], input[type="date"], textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    font-size:15px;
+    background:#fbfcfc;
+    color:var(--text);
+  }
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--brand);
+    background:#fff;
+  }
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+  .option-group{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+  .option-item{
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:10px 12px;
+    font-size:14px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    cursor:pointer;
+  }
+  .option-item.checked{border-color:var(--brand);background:#eef7f4;}
+  .option-item input{margin-top:2px;flex-shrink:0;}
+  .option-desc{font-size:12px;color:var(--muted);margin-top:2px;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn{
+    flex:1;
+    padding:13px;
+    border-radius:10px;
+    border:none;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--brand);color:#fff;}
+  .btn-primary:disabled{background:#b7cdc8;cursor:not-allowed;}
+  .btn-secondary{background:#fff;color:var(--brand-dark);border:1px solid var(--border);}
+  .msg{
+    margin-top:10px;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:8px;
+    display:none;
+  }
+  .msg.show{display:block;}
+  .msg.error{background:#fcebeb;color:var(--danger);}
+  .done-icon{font-size:40px;text-align:center;margin-bottom:6px;}
+  .done-title{font-size:17px;text-align:center;color:var(--brand-dark);font-weight:700;margin-bottom:8px;}
+  .done-text{font-size:14px;text-align:center;color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>【胸型重塑評估】男性女乳症線上諮詢與費用預約表單</h1>
+  <p>麗波永康國際診所</p>
+</div>
+
+<div class="container">
+
+  <div class="progress" id="progressBar">
+    <div class="dot" data-step="0"></div>
+    <div class="dot" data-step="1"></div>
+    <div class="dot" data-step="2"></div>
+    <div class="dot" data-step="3"></div>
+  </div>
+
+  <!-- 區塊一：介紹說明 -->
+  <div class="step visible card" id="step-0">
+    <h2>您好，我是客服小幫手 Angel，很高興為您服務！</h2>
+    <p>您是否正因胸部突起、穿衣服受限而感到困擾呢？別擔心，專屬的胸型重塑能幫您找回自信身材！</p>
+
+    <h3>✨ 我們的男性女乳手術 5 大特色</h3>
+    <ul class="intro-list">
+      <li>不需要穿塑身衣</li>
+      <li>不須留置引流管</li>
+      <li>術後快速恢復，隔天即可正常上班</li>
+      <li>乳腺與脂肪均勻移除，打造平坦好看的胸部曲線</li>
+      <li>傷口隱密不明顯，幾乎不影響日常生活與工作</li>
+    </ul>
+
+    <div class="quote">
+      💬 術後真實顧客回饋：「基本上正常生活都沒問題，不太會疼痛，傷口非常不明顯，隔天正常工作完全OK！」
+    </div>
+
+    <h3>💡 男性女乳主要分為三大類型</h3>
+    <div class="type-item"><b>脂肪型：</b>胸部偏軟，多因體重或脂肪堆積引起。</div>
+    <div class="type-item"><b>乳腺型：</b>激凸明顯、按壓有硬塊感，單靠減肥無法消除。</div>
+    <div class="type-item"><b>鬆弛型：</b>伴隨皮膚缺乏彈性、下垂狀況。</div>
+
+    <h3>🔗 了解更多與真實案例</h3>
+    <div class="links">
+      <a href="https://www.lipro.com.tw/service/gynecomastia" target="_blank" rel="noopener">📖 男性女乳症詳細介紹與原理</a>
+      <a href="https://www.lipro.com.tw/service/gynecomastia_ba" target="_blank" rel="noopener">📸 男性女乳案例對照圖庫 1</a>
+      <a href="https://www.lipromedical.com/gynecomastia_before_and_after/" target="_blank" rel="noopener">📸 男性女乳案例對照圖庫 2</a>
+    </div>
+
+    <div class="price-note">
+      💰 <b>關於手術費用：</b>手術費用會依據您的型態、尺寸大小及手術複雜度而有所不同。為了提供精準且具參考價值的報價，小幫手會請專業專員親自致電為您說明與解答疑惑。
+    </div>
+
+    <p class="privacy-note">🔒 隱私聲明：您提供的資料僅用於專員電話報價與預約諮詢，絕不外洩或用於任何商業推銷，請放心填寫。</p>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" id="startBtn">開始填寫評估表單</button>
+    </div>
+  </div>
+
+  <!-- 區塊二 Part 1：基本體態 -->
+  <div class="step card" id="step-1">
+    <h2>基本體態資訊</h2>
+
+    <label for="height">您的身高 <span class="req">*</span></label>
+    <input type="text" id="height" inputmode="numeric" placeholder="請填寫數字，例如：175" />
+    <div class="hint">單位為 cm</div>
+
+    <label for="weight">您的體重 <span class="req">*</span></label>
+    <input type="text" id="weight" inputmode="numeric" placeholder="請填寫數字，例如：70" />
+    <div class="hint">單位為 kg</div>
+
+    <div class="msg error" id="step1Msg"></div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary" data-back>上一步</button>
+      <button type="button" class="btn btn-primary" data-next>下一步</button>
+    </div>
+  </div>
+
+  <!-- 區塊二 Part 2：狀況評估 -->
+  <div class="step card" id="step-2">
+    <h2>狀況評估</h2>
+
+    <label>是否有運動或重訓習慣？ <span class="req">*</span></label>
+    <div class="option-group" data-group="exerciseHabit" data-type="radio">
+      <label class="option-item"><input type="radio" name="exerciseHabit" value="無運動習慣" />無運動習慣</label>
+      <label class="option-item"><input type="radio" name="exerciseHabit" value="偶爾運動（每週1~2次）" />偶爾運動（每週 1~2 次）</label>
+      <label class="option-item"><input type="radio" name="exerciseHabit" value="規律重訓/運動（每週3次以上）" />規律重訓 / 運動（每週 3 次以上）</label>
+    </div>
+
+    <label>曾經做過男性女乳的手術嗎？ <span class="req">*</span></label>
+    <div class="option-group" data-group="priorSurgery" data-type="radio">
+      <label class="option-item"><input type="radio" name="priorSurgery" value="否，這是第一次評估" />否，這是第一次評估</label>
+      <label class="option-item"><input type="radio" name="priorSurgery" value="是，曾做過手術（二次修復諮詢）" />是，曾做過手術（二次修復諮詢）</label>
+    </div>
+
+    <label>您是否知道自己屬於哪種型態？ <span class="req">*</span></label>
+    <div class="option-group" data-group="bodyType" data-type="radio">
+      <label class="option-item">
+        <input type="radio" name="bodyType" value="脂肪型" />
+        <span>脂肪型<div class="option-desc">胸部較軟、體重影響較大</div></span>
+      </label>
+      <label class="option-item">
+        <input type="radio" name="bodyType" value="乳腺型" />
+        <span>乳腺型<div class="option-desc">激凸明顯、按壓有硬塊感</div></span>
+      </label>
+      <label class="option-item">
+        <input type="radio" name="bodyType" value="鬆弛型" />
+        <span>鬆弛型<div class="option-desc">皮膚鬆弛、下垂</div></span>
+      </label>
+      <label class="option-item">
+        <input type="radio" name="bodyType" value="不太確定" />
+        <span>不太確定，希望專員/醫師協助評估</span>
+      </label>
+    </div>
+
+    <div class="msg error" id="step2Msg"></div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary" data-back>上一步</button>
+      <button type="button" class="btn btn-primary" data-next>下一步</button>
+    </div>
+  </div>
+
+  <!-- 區塊三：聯絡資訊 -->
+  <div class="step card" id="step-3">
+    <h2>聯絡資訊與方便回電時段</h2>
+
+    <label for="name">您的姓名或稱呼 <span class="req">*</span></label>
+    <input type="text" id="name" placeholder="例如：王先生 / Alex" />
+
+    <label for="phone">您的聯絡電話 <span class="req">*</span></label>
+    <input type="tel" id="phone" placeholder="專員將以此電話聯繫報價" />
+
+    <label for="preferredDate">方便回電的日期（選填）</label>
+    <input type="date" id="preferredDate" />
+    <div class="hint">若不指定日期，專員將依您選擇的時段盡快安排回電</div>
+
+    <label>平日方便接聽電話的時段 <span class="req">*</span></label>
+    <div class="option-group" data-group="preferredTimeSlots" data-type="checkbox">
+      <label class="option-item"><input type="checkbox" name="preferredTimeSlots" value="A" />上午 10:00 - 12:00</label>
+      <label class="option-item"><input type="checkbox" name="preferredTimeSlots" value="B" />中午 12:00 - 14:00</label>
+      <label class="option-item"><input type="checkbox" name="preferredTimeSlots" value="C" />下午 14:00 - 18:00</label>
+      <label class="option-item"><input type="checkbox" name="preferredTimeSlots" value="D" />晚上 18:00 - 20:00</label>
+      <label class="option-item"><input type="checkbox" name="preferredTimeSlots" value="E" />皆可 / 其他（請於備註說明）</label>
+    </div>
+
+    <label for="note">其他想要諮詢或補充說明的事項（選填）</label>
+    <textarea id="note" rows="3" placeholder="例如：想了解特定醫師診間時間、修復期疑問等"></textarea>
+
+    <div class="msg error" id="step3Msg"></div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary" data-back>上一步</button>
+      <button type="button" class="btn btn-primary" id="submitBtn">送出評估表單</button>
+    </div>
+  </div>
+
+  <!-- 完成畫面 -->
+  <div class="step card" id="step-done">
+    <div class="done-icon">🙏</div>
+    <div class="done-title">感謝您的填寫！</div>
+    <p class="done-text">小幫手 Angel 已收到您的預約評估資訊。<br />我們的專業專員將會在您選擇的方便時段致電為您解說與進行參考報價，請留意來電。祝您有美好的一天！</p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const steps = ['step-0', 'step-1', 'step-2', 'step-3'];
+  let currentStep = 0;
+
+  const dots = document.querySelectorAll('#progressBar .dot');
+
+  function showStep(index) {
+    steps.forEach((id, i) => {
+      document.getElementById(id).classList.toggle('visible', i === index);
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i <= index));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    currentStep = 1;
+    showStep(currentStep);
+  });
+
+  document.querySelectorAll('[data-back]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentStep = Math.max(0, currentStep - 1);
+      showStep(currentStep);
+    });
+  });
+
+  // 選項點選時的高亮效果
+  document.querySelectorAll('.option-item').forEach((item) => {
+    const input = item.querySelector('input');
+    input.addEventListener('change', () => {
+      const group = item.closest('.option-group');
+      if (input.type === 'radio') {
+        group.querySelectorAll('.option-item').forEach((el) => el.classList.remove('checked'));
+        item.classList.add('checked');
+      } else {
+        item.classList.toggle('checked', input.checked);
+      }
+    });
+  });
+
+  function getRadioValue(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  function getCheckboxValues(name) {
+    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((el) => el.value);
+  }
+
+  function showMsg(id, text) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.add('show');
+  }
+  function clearMsg(id) {
+    document.getElementById(id).classList.remove('show');
+  }
+
+  document.querySelectorAll('[data-next]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (currentStep === 1) {
+        clearMsg('step1Msg');
+        const height = document.getElementById('height').value.trim();
+        const weight = document.getElementById('weight').value.trim();
+        if (!height || !weight) {
+          showMsg('step1Msg', '請填寫身高與體重');
+          return;
+        }
+      }
+      if (currentStep === 2) {
+        clearMsg('step2Msg');
+        if (!getRadioValue('exerciseHabit') || !getRadioValue('priorSurgery') || !getRadioValue('bodyType')) {
+          showMsg('step2Msg', '請完整選擇以上三題');
+          return;
+        }
+      }
+      currentStep = Math.min(steps.length - 1, currentStep + 1);
+      showStep(currentStep);
+    });
+  });
+
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    clearMsg('step3Msg');
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const preferredDate = document.getElementById('preferredDate').value;
+    const preferredTimeSlots = getCheckboxValues('preferredTimeSlots');
+    const note = document.getElementById('note').value.trim();
+
+    if (!name) {
+      showMsg('step3Msg', '請填寫姓名或稱呼');
+      return;
+    }
+    if (!phone || phone.length < 8) {
+      showMsg('step3Msg', '請填寫正確的聯絡電話');
+      return;
+    }
+    if (preferredTimeSlots.length === 0) {
+      showMsg('step3Msg', '請至少選擇一個方便接聽電話的時段');
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '送出中...';
+
+    try {
+      const res = await fetch('/api/consultations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          height: document.getElementById('height').value.trim(),
+          weight: document.getElementById('weight').value.trim(),
+          exerciseHabit: getRadioValue('exerciseHabit'),
+          priorSurgery: getRadioValue('priorSurgery'),
+          bodyType: getRadioValue('bodyType'),
+          name,
+          phone,
+          preferredDate: preferredDate || null,
+          preferredTimeSlots,
+          note,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMsg('step3Msg', data.error || '送出失敗，請稍後再試');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出評估表單';
+        return;
+      }
+      currentStep = 3;
+      steps.forEach((id) => document.getElementById(id).classList.remove('visible'));
+      document.getElementById('step-done').classList.add('visible');
+      dots.forEach((d) => d.classList.add('active'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      showMsg('step3Msg', '無法連線到伺服器，請稍後再試');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '送出評估表單';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
