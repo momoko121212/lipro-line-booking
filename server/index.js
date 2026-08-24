@@ -39,6 +39,28 @@ function isValidPhone(s) {
   return typeof s === 'string' && /^[0-9()\-+\s]{8,15}$/.test(s.trim());
 }
 
+// 取得「台灣時間」現在的日期與時間字串，不管伺服器主機本身設定在哪個時區都會準確
+// （避免直接用 new Date().toISOString() 導致以 UTC 時間誤判今天日期/現在時刻）
+function getTaipeiNow() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const map = {};
+  parts.forEach((p) => {
+    map[p.type] = p.value;
+  });
+  return {
+    dateStr: `${map.year}-${map.month}-${map.day}`,
+    timeStr: `${map.hour}:${map.minute}`,
+  };
+}
+
 // ---------- API：查詢某天的時段狀態（可預約 / 已額滿）----------
 
 app.get('/api/slots', (req, res) => {
@@ -48,8 +70,8 @@ app.get('/api/slots', (req, res) => {
     return res.status(400).json({ error: '請提供正確格式的日期 (YYYY-MM-DD)' });
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  if (date < today) {
+  const { dateStr: todayStr, timeStr: nowTimeStr } = getTaipeiNow();
+  if (date < todayStr) {
     return res.status(400).json({ error: '不可預約已過去的日期' });
   }
 
@@ -66,9 +88,12 @@ app.get('/api/slots', (req, res) => {
     .all(date);
   const bookedSet = new Set(bookedRows.map((r) => r.slot_time));
 
+  // 如果查詢的日期就是今天，把已經過去的時段也標記為不可預約
+  const isToday = date === todayStr;
+
   const slots = allSlots.map((time) => ({
     time,
-    available: !bookedSet.has(time),
+    available: !bookedSet.has(time) && !(isToday && time <= nowTimeStr),
   }));
 
   res.json({ date, open: true, slots });
@@ -92,9 +117,12 @@ app.post('/api/appointments', (req, res) => {
     return res.status(400).json({ error: '請選擇預約時段' });
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  if (date < today) {
+  const { dateStr: todayStr, timeStr: nowTimeStr } = getTaipeiNow();
+  if (date < todayStr) {
     return res.status(400).json({ error: '不可預約已過去的日期' });
+  }
+  if (date === todayStr && time <= nowTimeStr) {
+    return res.status(400).json({ error: '這個時段已經過去，請重新選擇時段' });
   }
 
   if (!isClinicOpenOn(date)) {
