@@ -169,6 +169,57 @@ app.get('/api/admin/appointments', (req, res) => {
   res.json({ appointments: rows });
 });
 
+// ---------- 管理端網頁：預約總覽（方便診所人員查看）----------
+
+app.get('/admin', (_req, res) => {
+  res.send(`<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>預約總覽 - 麗波永康國際診所</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;background:#f5f8f7;margin:0;padding:20px;color:#26312e;}
+  h1{font-size:18px;color:#1f6b5e;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e1e8e6;font-size:14px;}
+  th{background:#eef7f4;color:#1f6b5e;}
+  tr:last-child td{border-bottom:none;}
+  .empty{color:#7c8a86;padding:20px;text-align:center;}
+  .refresh{font-size:12px;color:#7c8a86;margin-bottom:12px;}
+</style>
+</head>
+<body>
+  <h1>麗波永康國際診所｜預約總覽</h1>
+  <div class="refresh">每 30 秒自動更新一次</div>
+  <div id="content">載入中...</div>
+  <script>
+    async function load() {
+      try {
+        const res = await fetch('/api/admin/appointments');
+        const data = await res.json();
+        const rows = data.appointments || [];
+        if (rows.length === 0) {
+          document.getElementById('content').innerHTML = '<div class="empty">目前沒有任何預約</div>';
+          return;
+        }
+        let html = '<table><thead><tr><th>日期</th><th>時段</th><th>姓名</th><th>電話</th><th>備註</th><th>建立時間</th></tr></thead><tbody>';
+        rows.forEach(r => {
+          html += '<tr><td>' + r.slot_date + '</td><td>' + r.slot_time + '</td><td>' + r.name + '</td><td>' + r.phone + '</td><td>' + (r.note || '') + '</td><td>' + r.created_at + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        document.getElementById('content').innerHTML = html;
+      } catch (err) {
+        document.getElementById('content').innerHTML = '<div class="empty">載入失敗，請重新整理</div>';
+      }
+    }
+    load();
+    setInterval(load, 30000);
+  </script>
+</body>
+</html>`);
+});
+
 // ---------- LINE Webhook（接收使用者傳來的訊息/事件，例如加好友、傳送文字）----------
 
 function verifyLineSignature(req) {
