@@ -13,7 +13,6 @@
     --text:#26312e;
     --muted:#7c8a86;
     --border:#e1e8e6;
-    --slot-taken:#e9edec;
     --danger:#d64545;
   }
   *{box-sizing:border-box;}
@@ -41,7 +40,7 @@
     opacity:0.9;
   }
   .container{
-    max-width:520px;
+    max-width:560px;
     margin:0 auto;
     padding:16px 16px 60px;
   }
@@ -69,7 +68,7 @@
     margin-top:12px;
   }
   label:first-of-type{margin-top:0;}
-  input[type="text"], input[type="tel"], input[type="date"], textarea{
+  input[type="text"], input[type="tel"], textarea{
     width:100%;
     padding:11px 12px;
     border:1px solid var(--border);
@@ -83,47 +82,48 @@
     border-color:var(--brand);
     background:#fff;
   }
-  .slots-status{
-    font-size:13px;
-    color:var(--muted);
-    margin-bottom:8px;
-  }
-  .slot-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
-  }
-  .slot-btn{
-    padding:10px 4px;
-    border-radius:8px;
+  .consultant-tabs{display:flex;flex-wrap:wrap;gap:8px;}
+  .consultant-tab{
+    padding:9px 14px;
+    border-radius:20px;
     border:1px solid var(--border);
     background:#fff;
-    font-size:14px;
-    color:var(--text);
-    cursor:pointer;
-    text-align:center;
-    transition:all .12s ease;
-  }
-  .slot-btn:hover:not(:disabled){
-    border-color:var(--brand);
-  }
-  .slot-btn.selected{
-    background:var(--brand);
-    border-color:var(--brand);
-    color:#fff;
-    font-weight:600;
-  }
-  .slot-btn:disabled{
-    background:var(--slot-taken);
-    color:var(--muted);
-    text-decoration:line-through;
-    cursor:not-allowed;
-  }
-  .empty-msg{
     font-size:13px;
-    color:var(--muted);
-    padding:8px 0;
+    cursor:pointer;
+    color:var(--text);
   }
+  .consultant-tab.active{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600;}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px;}
+  .day-group{margin-top:14px;}
+  .day-title{font-size:13px;font-weight:700;color:var(--brand-dark);margin-bottom:6px;}
+  .slot-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+  .slot-item{
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:9px 10px;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+  }
+  .slot-item.checked{border-color:var(--brand);background:#eef7f4;}
+  .slot-item input{flex-shrink:0;}
+  .empty-msg{font-size:13px;color:var(--muted);padding:8px 0;}
+  .selected-summary{
+    font-size:13px;
+    color:var(--brand-dark);
+    background:#eef7f4;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-top:12px;
+    display:none;
+  }
+  .selected-summary.show{display:block;}
   .submit-btn{
     width:100%;
     padding:14px;
@@ -150,16 +150,6 @@
   .msg.show{display:block;}
   .msg.success{background:#e5f4ee;color:var(--brand-dark);}
   .msg.error{background:#fcebeb;color:var(--danger);}
-  .selected-summary{
-    font-size:13px;
-    color:var(--brand-dark);
-    background:#eef7f4;
-    border-radius:8px;
-    padding:8px 10px;
-    margin-top:10px;
-    display:none;
-  }
-  .selected-summary.show{display:block;}
   .footer-note{
     text-align:center;
     font-size:11px;
@@ -172,7 +162,7 @@
 
 <div class="header">
   <h1>麗波永康國際診所</h1>
-  <p>線上預約系統｜請選擇日期與時段</p>
+  <p>線上預約系統｜可複選多個方便的時段，我們將盡快與您確認</p>
 </div>
 
 <div class="container">
@@ -190,28 +180,34 @@
   </div>
 
   <div class="card">
-    <h2>選擇日期</h2>
-    <input type="date" id="date" />
-    <div class="footer-note">診所看診時間：週一至週五 09:00–18:00（12:00–13:30 午休不開放）</div>
+    <h2>指定諮詢師（選填）</h2>
+    <div class="consultant-tabs" id="consultantTabs"></div>
+    <div class="hint">不指定的話，會顯示所有諮詢師目前開放的時段，由診所依您勾選的時段安排合適的諮詢師。</div>
   </div>
 
   <div class="card">
-    <h2>選擇時段</h2>
-    <div class="slots-status" id="slotsStatus">請先選擇日期</div>
-    <div class="slot-grid" id="slotGrid"></div>
+    <h2>選擇方便的時段（可複選）</h2>
+    <div class="hint" style="margin-top:0;">這些是您方便的時段清單，最終會由診所人員確認其中一個，並以電話或 LINE 通知您。</div>
+    <div id="slotsArea"><div class="empty-msg">載入中...</div></div>
     <div class="selected-summary" id="selectedSummary"></div>
   </div>
 
-  <button class="submit-btn" id="submitBtn" disabled>送出預約</button>
+  <button class="submit-btn" id="submitBtn" disabled>送出預約意願</button>
   <div class="msg" id="msgBox"></div>
+  <div class="footer-note">診所看診時間：週一至週五 09:00–18:00（12:00–13:30 午休不開放）</div>
 
 </div>
 
 <script>
 (function () {
-  const dateInput = document.getElementById('date');
-  const slotGrid = document.getElementById('slotGrid');
-  const slotsStatus = document.getElementById('slotsStatus');
+  const CONSULTANTS = ['A', 'B', 'C', 'D'];
+  let consultantLabels = {};
+  let currentConsultant = ''; // 空字串 = 不指定
+  let selected = []; // [{consultant, date, time}]
+  let availableSlots = []; // 目前 API 回傳的空檔清單
+
+  const consultantTabs = document.getElementById('consultantTabs');
+  const slotsArea = document.getElementById('slotsArea');
   const selectedSummary = document.getElementById('selectedSummary');
   const submitBtn = document.getElementById('submitBtn');
   const msgBox = document.getElementById('msgBox');
@@ -219,11 +215,7 @@
   const phoneInput = document.getElementById('phone');
   const noteInput = document.getElementById('note');
 
-  let selectedTime = null;
-  let lineUserId = null;
-
-  const todayStr = new Date().toISOString().slice(0, 10);
-  dateInput.min = todayStr;
+  let lineUserId = null; // 之後串接 LIFF 後，這裡會自動填入使用者的 LINE userId
 
   function showMessage(text, type) {
     msgBox.textContent = text;
@@ -233,82 +225,126 @@
     msgBox.className = 'msg';
   }
 
+  function selectionKey(s) {
+    return s.consultant + '|' + s.date + '|' + s.time;
+  }
+
   function updateSubmitState() {
     const ready =
       nameInput.value.trim().length > 0 &&
       phoneInput.value.trim().length >= 8 &&
-      dateInput.value &&
-      selectedTime;
+      selected.length > 0;
     submitBtn.disabled = !ready;
   }
 
-  function renderSlots(data) {
-    slotGrid.innerHTML = '';
-    selectedTime = null;
-    selectedSummary.className = 'selected-summary';
-
-    if (!data.open) {
-      slotsStatus.textContent = '該日期診所未開放（僅平日看診），請重新選擇日期';
-      updateSubmitState();
+  function updateSelectedSummary() {
+    if (selected.length === 0) {
+      selectedSummary.classList.remove('show');
       return;
     }
-
-    if (!data.slots || data.slots.length === 0) {
-      slotsStatus.innerHTML = '<div class="empty-msg">當日無可預約時段</div>';
-      updateSubmitState();
-      return;
-    }
-
-    const availableCount = data.slots.filter((s) => s.available).length;
-    slotsStatus.textContent =
-      availableCount > 0
-        ? `共 ${data.slots.length} 個時段，尚有 ${availableCount} 個可預約`
-        : '很抱歉，當日時段已全部額滿';
-
-    data.slots.forEach((slot) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'slot-btn';
-      btn.textContent = slot.time;
-      if (!slot.available) {
-        btn.disabled = true;
-        btn.title = '此時段已被預約';
-      } else {
-        btn.addEventListener('click', () => {
-          document
-            .querySelectorAll('.slot-btn.selected')
-            .forEach((b) => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedTime = slot.time;
-          selectedSummary.textContent = `已選擇：${dateInput.value} ${slot.time}`;
-          selectedSummary.classList.add('show');
-          updateSubmitState();
-        });
-      }
-      slotGrid.appendChild(btn);
-    });
-    updateSubmitState();
+    const labelFor = (s) => (consultantLabels[s.consultant] || s.consultant) + ' ' + s.date + ' ' + s.time;
+    selectedSummary.textContent = '已勾選 ' + selected.length + ' 個時段：' + selected.map(labelFor).join('、');
+    selectedSummary.classList.add('show');
   }
 
-  async function loadSlots() {
+  function renderConsultantTabs() {
+    consultantTabs.innerHTML = '';
+    const allTab = document.createElement('button');
+    allTab.type = 'button';
+    allTab.className = 'consultant-tab' + (currentConsultant === '' ? ' active' : '');
+    allTab.textContent = '不指定（看全部）';
+    allTab.addEventListener('click', () => {
+      currentConsultant = '';
+      renderConsultantTabs();
+      loadAvailability();
+    });
+    consultantTabs.appendChild(allTab);
+
+    CONSULTANTS.forEach((c) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'consultant-tab' + (currentConsultant === c ? ' active' : '');
+      btn.textContent = consultantLabels[c] || c;
+      btn.addEventListener('click', () => {
+        currentConsultant = c;
+        renderConsultantTabs();
+        loadAvailability();
+      });
+      consultantTabs.appendChild(btn);
+    });
+  }
+
+  function renderSlots() {
+    if (availableSlots.length === 0) {
+      slotsArea.innerHTML = '<div class="empty-msg">目前沒有開放的空檔時段，請稍後再試或聯繫診所</div>';
+      updateSubmitState();
+      return;
+    }
+
+    // 依日期分組
+    const byDate = {};
+    availableSlots.forEach((s) => {
+      if (!byDate[s.date]) byDate[s.date] = [];
+      byDate[s.date].push(s);
+    });
+    const dates = Object.keys(byDate).sort();
+
+    let html = '';
+    dates.forEach((date) => {
+      html += '<div class="day-group"><div class="day-title">' + date + '</div><div class="slot-grid">';
+      byDate[date].forEach((s) => {
+        const key = selectionKey(s);
+        const checked = selected.some((sel) => selectionKey(sel) === key);
+        const label = currentConsultant ? s.time : s.time + '（' + (consultantLabels[s.consultant] || s.consultant) + '）';
+        html +=
+          '<label class="slot-item' + (checked ? ' checked' : '') + '" data-key="' + key + '">' +
+          '<input type="checkbox" data-consultant="' + s.consultant + '" data-date="' + s.date + '" data-time="' + s.time + '"' +
+          (checked ? ' checked' : '') + ' />' + label + '</label>';
+      });
+      html += '</div></div>';
+    });
+    slotsArea.innerHTML = html;
+
+    slotsArea.querySelectorAll('input[type=checkbox]').forEach((cb) => {
+      cb.addEventListener('change', () => {
+        const s = { consultant: cb.dataset.consultant, date: cb.dataset.date, time: cb.dataset.time };
+        const key = selectionKey(s);
+        const label = cb.closest('.slot-item');
+        if (cb.checked) {
+          selected.push(s);
+          label.classList.add('checked');
+        } else {
+          selected = selected.filter((sel) => selectionKey(sel) !== key);
+          label.classList.remove('checked');
+        }
+        updateSelectedSummary();
+        updateSubmitState();
+      });
+    });
+  }
+
+  async function loadAvailability() {
     clearMessage();
-    if (!dateInput.value) return;
-    slotsStatus.textContent = '載入時段中...';
-    slotGrid.innerHTML = '';
+    slotsArea.innerHTML = '<div class="empty-msg">載入中...</div>';
     try {
-      const res = await fetch(`/api/slots?date=${dateInput.value}`);
+      const url = currentConsultant
+        ? '/api/availability?consultant=' + encodeURIComponent(currentConsultant)
+        : '/api/availability';
+      const res = await fetch(url);
       const data = await res.json();
       if (!res.ok) {
         showMessage(data.error || '載入時段失敗', 'error');
         return;
       }
-      renderSlots(data);
+      consultantLabels = data.consultantLabels || {};
+      availableSlots = data.slots || [];
+      renderConsultantTabs();
+      renderSlots();
     } catch (err) {
       showMessage('無法連線到伺服器，請稍後再試', 'error');
     }
   }
 
-  dateInput.addEventListener('change', loadSlots);
   nameInput.addEventListener('input', updateSubmitState);
   phoneInput.addEventListener('input', updateSubmitState);
 
@@ -317,42 +353,61 @@
     submitBtn.disabled = true;
     submitBtn.textContent = '送出中...';
     try {
-      const res = await fetch('/api/appointments', {
+      const res = await fetch('/api/booking-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: nameInput.value.trim(),
           phone: phoneInput.value.trim(),
-          date: dateInput.value,
-          time: selectedTime,
+          consultantPreference: currentConsultant || null,
+          selections: selected,
           note: noteInput.value.trim(),
           lineUserId: lineUserId,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        showMessage(data.error || '預約失敗，請稍後再試', 'error');
-        submitBtn.textContent = '送出預約';
-        if (res.status === 409) loadSlots();
+        showMessage(data.error || '送出失敗，請稍後再試', 'error');
+        submitBtn.textContent = '送出預約意願';
+        if (res.status === 409) loadAvailability(); // 時段被搶先預約，重新整理
         updateSubmitState();
         return;
       }
-      showMessage(
-        `預約成功！${data.appointment.slot_date} ${data.appointment.slot_time}，我們將盡快與您確認。`,
-        'success'
-      );
-      submitBtn.textContent = '送出預約';
-      loadSlots();
+      showMessage('已收到您的預約意願！診所人員將盡快確認時段，並以電話或 LINE 通知您。', 'success');
+      submitBtn.textContent = '送出預約意願';
       nameInput.value = '';
       phoneInput.value = '';
       noteInput.value = '';
+      selected = [];
+      updateSelectedSummary();
+      loadAvailability();
       updateSubmitState();
     } catch (err) {
       showMessage('無法連線到伺服器，請稍後再試', 'error');
-      submitBtn.textContent = '送出預約';
+      submitBtn.textContent = '送出預約意願';
       updateSubmitState();
     }
   });
+
+  loadAvailability();
+
+  // ---------------------------------------------------------------
+  // LIFF（LINE Front-end Framework）整合預留區
+  // 申請好 LIFF App 並取得 LIFF ID 之後，取消下方註解、
+  // 並在 head 區塊加入 LIFF SDK 的 script 標籤（見 SETUP_GUIDE.md 說明）
+  // 即可自動帶入使用者的 LINE 顯示名稱與 userId，發送預約確認訊息。
+  // ---------------------------------------------------------------
+  // async function initLiff() {
+  //   await liff.init({ liffId: 'YOUR_LIFF_ID' });
+  //   if (!liff.isLoggedIn()) {
+  //     liff.login();
+  //     return;
+  //   }
+  //   const profile = await liff.getProfile();
+  //   lineUserId = profile.userId;
+  //   nameInput.value = profile.displayName || '';
+  // }
+  // initLiff();
 })();
 </script>
 
