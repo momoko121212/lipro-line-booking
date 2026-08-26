@@ -34,6 +34,42 @@ db.exec(`
   WHERE status = 'confirmed';
 `);
 
+// 諮詢師每週空檔時間表（後台每週打勾設定，客人預約時只能從這裡面挑）
+// consultant + slot_date + slot_time 建立唯一索引，避免同一位諮詢師同一時段被重複開放
+db.exec(`
+  CREATE TABLE IF NOT EXISTS weekly_availability (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    consultant TEXT NOT NULL,        -- 'A' / 'B' / 'C' / 'D'
+    slot_date TEXT NOT NULL,         -- YYYY-MM-DD
+    slot_time TEXT NOT NULL,         -- HH:MM
+    is_booked INTEGER NOT NULL DEFAULT 0,  -- 0=空檔可選 / 1=已被後台確認的預約佔用
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
+`);
+
+db.exec(`
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_consultant_slot
+  ON weekly_availability (consultant, slot_date, slot_time);
+`);
+
+// 客人送出的預約「意願清單」——客人可勾選多個方便的時段（可能來自不同諮詢師），
+// 這裡先只是留資，實際只會有其中一筆被後台人工確認、指派成正式預約。
+db.exec(`
+  CREATE TABLE IF NOT EXISTS booking_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    consultant_preference TEXT,      -- 客人指定的諮詢師代碼，NULL 代表「不指定」
+    selections TEXT NOT NULL,        -- JSON 陣列：[{"consultant":"A","date":"2026-08-25","time":"10:00"}, ...]
+    note TEXT,
+    status TEXT NOT NULL DEFAULT 'pending', -- pending / confirmed / cancelled
+    confirmed_consultant TEXT,
+    confirmed_date TEXT,
+    confirmed_time TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
+`);
+
 // 胸型重塑評估表單資料表（/gynecomastia 頁面）
 // 這是「諮詢評估留資」用途，不是時段預約，所以不需要唯一索引限制——
 // 同一個回電時段區間允許很多人一起留資，由專員之後逐一致電安排。
